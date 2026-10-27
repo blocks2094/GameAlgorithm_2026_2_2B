@@ -25,6 +25,7 @@ namespace AlgoLesson6
             List<CardData> selected = new List<CardData>();
 
             // TODO 09: Search를 호출해 1~5장 조합을 모두 탐색하세요.
+            Search(hand, 0, 5, selected, ref best);
 
             return best;
         }
@@ -37,14 +38,26 @@ namespace AlgoLesson6
             ref PokerHandResult best)
         {
             // TODO 10: 현재 selected가 비어 있지 않으면 점수를 평가하세요.
+            if(selected.Count > 0)
+            {
+                PokerHandResult result = evaluator.Evaluate(selected);
+                if (result.Score > best.Score) best = result;
+            }
 
             // TODO 11: 5장을 선택했으면 재귀를 종료하세요.
+            if (selected.Count == maxCount) return;
 
-            // TODO 12: start부터 손패 끝까지 카드를 하나씩 선택하세요.
+            for(int i = start; i < maxCount; i++)
+            {
+                // TODO 12: start부터 손패 끝까지 카드를 하나씩 선택하세요.
+                selected.Add(hand[i]);
 
-            // TODO 13: 다음 인덱스부터 Search를 재귀 호출하세요.
+                // TODO 13: 다음 인덱스부터 Search를 재귀 호출하세요.
+                Search(hand, i + 1, maxCount, selected, ref best);
 
-            // TODO 14: 재귀가 끝나면 마지막 카드를 제거해 상태를 복원하세요.
+                // TODO 14: 재귀가 끝나면 마지막 카드를 제거해 상태를 복원하세요.
+                selected.RemoveAt(selected.Count - 1);
+            }
         }
     }
 }

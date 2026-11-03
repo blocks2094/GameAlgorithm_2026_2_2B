@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AlgoLesson7;
 
 namespace AlgoLesson7.Student
@@ -17,21 +18,50 @@ namespace AlgoLesson7.Student
             if (start == null || target == null || cells == null)
                 return null;
 
-            // TODO 16: target과 거리가 1인 빈 칸들을 goals에 저장하세요.
+            HashSet<AutoChessBoardCell> goals = 
+                cells.Where(cell => cell.Occupant == null &&
+                HexGridUtility.GetDistance(cell, target) == 1).ToHashSet();
 
-            // TODO 17: BFS에 사용할 Queue frontier와
-            //          Dictionary<AutoChessBoardCell, AutoChessBoardCell> cameFrom을 만드세요.
+            Queue<AutoChessBoardCell> frontire = new Queue<AutoChessBoardCell>();
 
-            // TODO 18: start를 frontier에 넣고 cameFrom에 방문 표시하세요.
+            Dictionary<AutoChessBoardCell, AutoChessBoardCell> cameForm =
+                new Dictionary<AutoChessBoardCell, AutoChessBoardCell>();
 
-            // TODO 19: Queue가 빌 때까지 인접한 빈 칸을 탐색하고
-            //          목표 칸에 도착하면 탐색을 종료하세요.
+            frontire.Enqueue(start);
+            cameForm[start] = null;
+            AutoChessBoardCell reachedGoal = null;
 
-            // TODO 20: cameFrom을 거꾸로 따라가 start 다음의 첫 번째 칸을 반환하세요.
+            while(frontire.Count > 0 && reachedGoal == null)
+            {
+                AutoChessBoardCell current = frontire.Dequeue();
 
-            // BFS 미완성 상태에서도 직선 이동은 가능하게 하는 임시 코드입니다.
-            // 장애물 뒤 목표는 찾지 못하므로 TODO 16~20을 완성해야 합니다.
-            return FindGreedyStep(start, target, cells);
+                foreach(AutoChessBoardCell neighboor in HexGridUtility.GetOpenNeighbors(current, cells))
+                {
+                    if (cameForm.ContainsKey(neighboor))
+                        continue;
+
+                    cameForm[neighboor] = current;
+
+                    if(goals.Contains(neighboor))
+                    {
+                        reachedGoal = neighboor;
+                        break;
+                    }
+                    frontire.Enqueue(neighboor);
+                }
+            }
+
+            if (reachedGoal == null)
+                return null;
+
+            AutoChessBoardCell next = reachedGoal;
+
+            while (cameForm[next] != start)
+            {
+                next = cameForm[next];
+            }
+
+            return next;
         }
 
         private static AutoChessBoardCell FindGreedyStep(

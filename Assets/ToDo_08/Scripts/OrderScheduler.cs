@@ -5,15 +5,48 @@ namespace AlgoLesson8.Student
 {
     /// <summary>
     /// 긴급도, 남은 시간, 보상 순서로 다음 주문을 선택합니다.
+    /// 
+    /// 대기중인 작업 주문 중 다음에 처리할 주문을 고르는 스케줄러
+    /// 
+    /// [ 복잡도 ]
+    /// 시간 : O(n)
+    /// 공간 : O(1)
+    /// 
+    /// 
     /// </summary>
     public sealed class OrderScheduler : IOrderScheduler
     {
-        public int SelectNextOrder(
-            IReadOnlyList<WorkOrder> orders,
-            float currentTime)
+        public int SelectNextOrder(IReadOnlyList<WorkOrder> orders, float currentTime)
         {
+            // 처리할 주문이 없으면 -1
             if (orders == null || orders.Count == 0)
                 return -1;
+
+            // 첫 번째 주문을 임시 회선 후보로 두고, 나머지와 하나씩 비교한다
+            WorkOrder best = orders[0];
+
+            for (int i = 1; i < orders.Count; i++)
+            {
+                WorkOrder candidate = orders[i];
+
+                // candidate 가 best 보다 더 좋은 주문인지 판정한다
+                bool better =
+                    // 1. 우선 순위가 더 높다
+                    candidate.Priority > best.Priority ||
+                    // 2. 우선 순위가 같고, 마감이 더 빠르다
+                    (candidate.Priority == best.Priority && candidate.Deadline < best.Deadline) ||
+                    // 3. 우선 순위 마감이 같고 보상이 더 큰
+                    (candidate.Priority == best.Priority && candidate.Deadline == best.Deadline && candidate.Reward > best.Reward) ||   
+                    // 4. 다 같고
+                    (candidate.Priority == best.Priority && candidate.Deadline == best.Deadline && candidate.Reward > best.Reward && candidate.Id < best.Id);
+
+
+                // 더 좋은 주문이면 후보 교체
+                if (better) best = candidate;
+            }
+
+
+
 
             // TODO 08: bestOrder를 첫 주문으로 초기화하세요.
 

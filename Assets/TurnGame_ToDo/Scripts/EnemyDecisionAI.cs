@@ -5,9 +5,11 @@ namespace TurnGame.Student
 {
     public class EnemyDecisionAI : IEnemyDecisionAI
     {
-        public int SelectTarget(IReadOnlyList<BattleSnapshot> units, BattleElement element)
+        public int SelectTarget(IReadOnlyList<BattleSnapshot> units, BattleElement attackelement)
         {
-            int best = -1; float bestScore = float.MinValue;
+            int best = -1; 
+            float bestScore = float.MinValue;
+
             for (int i = 0; i < units.Count; i++)
             {
                 // TODO 27: 죽은 캐릭터와 적 팀은 제외하세요.
@@ -15,9 +17,35 @@ namespace TurnGame.Student
                 // TODO 29: 이번 공격으로 쓰러뜨릴 수 있으면 100점을 더하세요.
                 // TODO 30: 속성 약점이면 30점을 더하세요.
                 // TODO 31: 가장 높은 점수의 인덱스를 저장하세요.
-                if (!units[i].IsAlive || units[i].Team != BattleTeam.Heroes) continue;
-                float score = 1f - units[i].HP / (float)Mathf.Max(1, units[i].MaxHP);
-                if (score > bestScore) { bestScore = score; best = i; }
+
+                BattleSnapshot target = units[i];
+
+                if (!target.IsAlive || target.Team != BattleTeam.Heroes) continue;
+
+                float hpRatio = target.HP / (float)Mathf.Max(1, target.MaxHP);
+                float score = (1f - hpRatio) * 40f;
+
+                if (target.HP <= 25)
+                {
+                    score += 100f;
+                }
+
+                if (attackelement != BattleElement.None && target.Weakness == attackelement)
+                {
+                    score += 30f;
+                }
+
+                if (target.Guarding)
+                {
+                    score -= 15f;
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = i;
+                }
+
             }
             return best;
         }

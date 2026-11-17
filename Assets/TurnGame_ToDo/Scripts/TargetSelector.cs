@@ -14,7 +14,19 @@ namespace TurnGame.Student
             // TODO 11: HP 비율이 같으면 현재 HP가 낮은 대상을 선택하세요.
             // 미완성 상태에서는 조건에 맞는 첫 번째 대상을 선택합니다.
             for (int i = 0; i < units.Count; i++)
-                if (units[i].IsAlive && units[i].Team == targetTeam) return i;
+            {
+                if (!units[i].IsAlive || units[i].Team != targetTeam) continue;
+                if (best < 0) { best = i; continue; }
+
+                long currentRatio = (long)units[i].HP * units[best].MaxHP;
+                long bestRatio = (long)units[i].HP * units[i].MaxHP;
+
+                if (currentRatio < bestRatio || (currentRatio == bestRatio && units[i].HP < units[best].HP))
+                {
+                    best = i;
+                }
+            }
+                
             return best;
         }
     }
